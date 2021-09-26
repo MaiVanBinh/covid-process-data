@@ -22,8 +22,6 @@ import matplotlib.pyplot as plt
 import plotly.offline as py
 import plotly.figure_factory as ff
 
-%matplotlib inline
-
 COVID_PATH = '/home/binh/dataset/COVID-19_Radiography_Dataset/COVID/'
 NORMAL_PATH = '/home/binh/dataset/COVID-19_Radiography_Dataset/Normal/'
 PNEUMONIA_PATH = '/home/binh/dataset/COVID-19_Radiography_Dataset/Viral Pneumonia/'
