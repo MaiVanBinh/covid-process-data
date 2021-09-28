@@ -47,7 +47,7 @@ def img_preprocessing(image_path):
     new_img = cv2.merge((B, img, R))
     return new_img
 
-base_dir = '/home/binh/COVID-19_Radiography_Dataset/base_dir'
+base_dir = '/home/binh/covid-chestxray-datasett/base_dir'
 os.mkdir(base_dir)
 train_dir = os.path.join(base_dir, 'train_dir')
 os.mkdir(train_dir)
