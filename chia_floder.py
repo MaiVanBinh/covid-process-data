@@ -48,7 +48,6 @@ def img_preprocessing(image_path):
     return new_img
 
 base_dir = '/home/binh/covid-chestxray-dataset/base_dir'
-os.mkdir(base_dir)
 train_dir = os.path.join(base_dir, 'train_dir')
 os.mkdir(train_dir)
 val_dir = os.path.join(base_dir, 'val_dir')
@@ -196,7 +195,7 @@ for image in test_list:
         image = img_preprocessing(src)
         cv2.imwrite(dst, image)
 
-print(len(os.listdir('base_dir/train_dir/Normal')))
+print(len(os.listdir('/home/binh/covid-chestxray-dataset/base_dir/train_dir/Normal')))
 print(len(os.listdir('base_dir/val_dir/Normal')))
 print(len(os.listdir('base_dir/train_dir/COVID')))
 print(len(os.listdir('base_dir/val_dir/COVID')))
