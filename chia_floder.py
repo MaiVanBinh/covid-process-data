@@ -80,6 +80,125 @@ folder_2 = os.listdir(NORMAL_PATH)
 folder_2 = shuffle(folder_2)
 folder_3 = os.listdir(PNEUMONIA_PATH)
 folder_3 = shuffle(folder_3)
-print(len(folder_1))
-print(len(folder_2))
-print(len(folder_3))
+
+covid_data = pd.DataFrame(folder_1, columns = ['FILE NAME'])
+normal_data = pd.DataFrame(folder_2, columns = ['FILE NAME'])
+pneumonia_data = pd.DataFrame(folder_3, columns = ['FILE NAME'])
+covid_data['Target'] = 'COVID'
+normal_data['Target'] = 'Normal'
+pneumonia_data['Target'] = 'Viral_Pneumonia'
+covid_data['Labels'] = '0'
+normal_data['Labels'] = '1'
+pneumonia_data['Labels'] = '2'
+data = pd.concat([covid_data, normal_data, pneumonia_data], axis = 0, sort = False)
+
+y1 = data['Labels']
+df_train, df_val_test = train_test_split(data, test_size=0.3, random_state=101, stratify = y1)
+y2 = df_val_test['Labels']
+df_val, df_test = train_test_split(df_val_test, test_size=0.5, random_state=101, stratify = y2)
+print(df_train.shape)
+print(df_val.shape)
+print(df_test.shape)
+
+data.set_index('FILE NAME', inplace = True)
+
+NUM_AUG_IMAGES_WANTED = 11000
+
+IMAGE_HEIGHT = 224
+IMAGE_WIDTH = 224
+
+# Get a list of train and val images
+train_list = list(df_train['FILE NAME'])
+val_list = list(df_val['FILE NAME'])
+test_list = list(df_val['FILE NAME'])
+
+# Transfer the train images
+
+for image in train_list:
+    fname = image
+    label = data.loc[image,'Target']
+    if fname in folder_1:
+        src = os.path.join(COVID_PATH, fname)
+        dst = os.path.join(train_dir, label, fname)
+        image = img_preprocessing(src)
+        cv2.imwrite(dst, image)
+
+for image in val_list:
+    fname = image
+    label = data.loc[image,'Target']
+    if fname in folder_1:
+        src = os.path.join(COVID_PATH, fname)
+        dst = os.path.join(val_dir, label, fname)
+        image = img_preprocessing(src)
+        cv2.imwrite(dst, image)
+        
+for image in test_list:
+    fname = image 
+    label = data.loc[image,'Target']
+    if fname in folder_1:
+        src = os.path.join(COVID_PATH, fname)
+        dst = os.path.join(test_dir, label, fname)
+        image = img_preprocessing(src)
+        cv2.imwrite(dst, image)
+
+for image in train_list:
+
+    fname = image
+    label = data.loc[image,'Target']
+    if fname in folder_2:
+        src = os.path.join(NORMAL_PATH, fname)
+        dst = os.path.join(train_dir, label, fname)
+        image = img_preprocessing(src)
+        cv2.imwrite(dst, image)
+
+for image in val_list:
+    fname = image
+    label = data.loc[image,'Target']
+    if fname in folder_2:
+        src = os.path.join(NORMAL_PATH, fname)
+        dst = os.path.join(val_dir, label, fname)
+        image = img_preprocessing(src)
+        cv2.imwrite(dst, image)
+        
+for image in test_list:
+    fname = image 
+    label = data.loc[image,'Target']
+    if fname in folder_2:
+        src = os.path.join(NORMAL_PATH, fname)
+        dst = os.path.join(test_dir, label, fname)
+        image = img_preprocessing(src)
+        cv2.imwrite(dst, image)
+
+for image in train_list:
+    fname = image
+    label = data.loc[image,'Target']
+    if fname in folder_3:
+        src = os.path.join(PNEUMONIA_PATH, fname)
+        dst = os.path.join(train_dir, label, fname)
+        image = img_preprocessing(src)
+        cv2.imwrite(dst, image)
+
+for image in val_list:
+    fname = image 
+    label = data.loc[image,'Target']
+    if fname in folder_3:
+        src = os.path.join(PNEUMONIA_PATH, fname)
+        dst = os.path.join(val_dir, label, fname)
+        image = img_preprocessing(src)
+        cv2.imwrite(dst, image)
+        
+for image in test_list:
+    fname = image 
+    label = data.loc[image,'Target']
+    if fname in folder_3:
+        src = os.path.join(PNEUMONIA_PATH, fname)
+        dst = os.path.join(test_dir, label, fname)
+        image = img_preprocessing(src)
+        cv2.imwrite(dst, image)
+
+print(len(os.listdir('base_dir/train_dir/Normal')))
+print(len(os.listdir('base_dir/val_dir/Normal')))
+print(len(os.listdir('base_dir/train_dir/COVID')))
+print(len(os.listdir('base_dir/val_dir/COVID')))
+print(len(os.listdir('base_dir/train_dir/Viral_Pneumonia')))
+print(len(os.listdir('base_dir/val_dir/Viral_Pneumonia')))
