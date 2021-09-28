@@ -31,13 +31,13 @@ for item in class_list:
     img_dir = os.path.join(aug_dir, 'img_dir')
     os.mkdir(img_dir)
     img_class = item
-    img_list = os.listdir('./home/binh/covid-chestxray-dataset/base_dir/train_dir/' + img_class)
+    img_list = os.listdir('/home/binh/covid-chestxray-dataset/base_dir/train_dir/' + img_class)
     for fname in img_list:
-            src = os.path.join('./home/binh/covid-chestxray-dataset/base_dir/train_dir/' + img_class, fname)
+            src = os.path.join('/home/binh/covid-chestxray-dataset/base_dir/train_dir/' + img_class, fname)
             dst = os.path.join(img_dir, fname)
             shutil.copyfile(src, dst)
     path = aug_dir
-    save_path = './home/binh/covid-chestxray-dataset/base_dir/train_dir/' + img_class
+    save_path = '/home/binh/covid-chestxray-dataset/base_dir/train_dir/' + img_class
 
     datagen = ImageDataGenerator(
         rotation_range=10,
@@ -55,4 +55,4 @@ for item in class_list:
 
     for i in range(0,num_batches):
         imgs, labels = next(aug_datagen)
-    shutil.rmtree('./home/binh/covid-chestxray-dataset/aug_dir')
+    shutil.rmtree('/home/binh/covid-chestxray-dataset/aug_dir')
