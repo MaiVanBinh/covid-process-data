@@ -112,9 +112,9 @@ filepath = "/COVID-19-VGG16.h5"
 
 history = model.fit_generator(train_gen, steps_per_epoch=180, validation_data=val_gen,epochs=200, verbose=1)
 vgg_16 = '/home/binh/dataset/covid-process-data/VGG-16'
-    if Path(vgg_16).is_dir():
-        shutil.rmtree(vgg_16) 
-    os.mkdir(vgg_16)
+if Path(vgg_16).is_dir():
+    shutil.rmtree(vgg_16) 
+os.mkdir(vgg_16)
 
 model.save_weights('/home/binh/dataset/covid-process-data/VGG-16/weights.h5')
 
