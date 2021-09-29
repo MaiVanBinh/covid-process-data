@@ -28,7 +28,7 @@ class_list = ['COVID', 'Normal', 'Viral_Pneumonia']
 for item in class_list:
     aug_dir = '/home/binh/covid-chestxray-dataset/aug_dir'
     if Path(aug_dir).is_dir():
-        os.rmdir(aug_dir) 
+        shutil.rmtree(aug_dir) 
     os.mkdir(aug_dir)
     img_dir = os.path.join(aug_dir, 'img_dir')
     os.mkdir(img_dir)
