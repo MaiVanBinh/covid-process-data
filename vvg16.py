@@ -24,48 +24,9 @@ import plotly.figure_factory as ff
 
 class_list = ['COVID', 'Normal', 'Viral_Pneumonia']
 
-for item in class_list:
-    aug_dir = '/home/binh/covid-chestxray-dataset/aug_dir'
-    os.mkdir(aug_dir)
-    img_dir = os.path.join(aug_dir, 'img_dir')
-    os.mkdir(img_dir)
-    img_class = item
-    img_list = os.listdir('./home/binh/covid-chestxray-dataset/base_dir/train_dir/' + img_class)
-    for fname in img_list:
-            src = os.path.join('./home/binh/covid-chestxray-dataset/base_dir/train_dir/' + img_class, fname)
-            dst = os.path.join(img_dir, fname)
-            shutil.copyfile(src, dst)
-    path = aug_dir
-    save_path = './home/binh/covid-chestxray-dataset/base_dir/train_dir/' + img_class
-
-    datagen = ImageDataGenerator(
-        rotation_range=10,
-        width_shift_range=0.1,
-        height_shift_range=0.1,
-        zoom_range=0.1,
-        horizontal_flip=True,
-        fill_mode='nearest')
-
-    batch_size = 50
-
-    aug_datagen = datagen.flow_from_directory(path,save_to_dir=save_path,save_format='png',target_size=(IMAGE_HEIGHT,IMAGE_WIDTH),batch_size=batch_size)
-    num_files = len(os.listdir(img_dir))
-    num_batches = int(np.ceil((NUM_AUG_IMAGES_WANTED-num_files)/batch_size))
-
-    for i in range(0,num_batches):
-        imgs, labels = next(aug_datagen)
-    shutil.rmtree('aug_dir')
-
-print(len(os.listdir('base_dir/train_dir/Normal')))
-print(len(os.listdir('base_dir/val_dir/Normal')))
-print(len(os.listdir('base_dir/train_dir/COVID')))
-print(len(os.listdir('base_dir/val_dir/COVID')))
-print(len(os.listdir('base_dir/train_dir/Viral_Pneumonia')))
-print(len(os.listdir('base_dir/val_dir/Viral_Pneumonia')))
-
-train_path = 'base_dir/train_dir'
-valid_path = 'base_dir/val_dir'
-test_path = 'base_dir/test_di
+train_path = '/home/binh/covid-chestxray-dataset/base_dir/train_dir'
+valid_path = '/home/binh/covid-chestxray-dataset/base_dir/val_dir'
+test_path = '/home/binh/covid-chestxray-dataset/base_dir/test_dir'
 
 datagen = ImageDataGenerator(rescale=1.0/255)
 
@@ -146,49 +107,56 @@ model.summary()
 
 model.compile(Adam(learning_rate=0.00001), loss='categorical_crossentropy', 
               metrics=['accuracy'])
-
-aug_dir_1 = 'COVID-19'
-os.mkdir(aug_dir_1)
-filepath = "./COVID-19-VGG16.h5"
+              
+filepath = "/COVID-19-VGG16.h5"
 
 history = model.fit_generator(train_gen, steps_per_epoch=180, validation_data=val_gen,epochs=200, verbose=1)
+vgg_16 = '/home/binh/dataset/covid-process-data/VGG-16'
+    if Path(vgg_16).is_dir():
+        shutil.rmtree(vgg_16) 
+    os.mkdir(vgg_16)
 
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
-ax1.plot(history.history['loss'], color='b', label="Training loss")
-ax1.plot(history.history['val_loss'], color='r', label="validation loss")
-ax1.set_xticks(np.arange(1, 200, 1))
-ax1.set_yticks(np.arange(0, 3, 0.5))
+model.save_weights('/home/binh/dataset/covid-process-data/VGG-16/weights.h5')
 
-ax2.plot(history.history['accuracy'], color='b', label="Training accuracy")
-ax2.plot(history.history['val_accuracy'], color='r',label="Validation accuracy")
-ax2.set_xticks(np.arange(1, 200, 1))
+with open('/home/binh/dataset/covid-process-data/VGG-16/trainHistoryDict', 'wb') as file_pi:
+        pickle.dump(history.history, file_pi)
 
-legend = plt.legend(loc='best', shadow=True)
-plt.tight_layout()
-plt.show()
+# fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+# ax1.plot(history.history['loss'], color='b', label="Training loss")
+# ax1.plot(history.history['val_loss'], color='r', label="validation loss")
+# ax1.set_xticks(np.arange(1, 200, 1))
+# ax1.set_yticks(np.arange(0, 3, 0.5))
 
-model.metrics_names
+# ax2.plot(history.history['accuracy'], color='b', label="Training accuracy")
+# ax2.plot(history.history['val_accuracy'], color='r',label="Validation accuracy")
+# ax2.set_xticks(np.arange(1, 200, 1))
 
-val_loss, val_acc = \
-model.evaluate_generator(test_gen)
+# legend = plt.legend(loc='best', shadow=True)
+# plt.tight_layout()
+# plt.show()
 
-print('val_loss:', val_loss)
-print('val_acc:', val_acc)
+# model.metrics_names
 
-test_labels = test_gen.classes
+# val_loss, val_acc = \
+# model.evaluate_generator(test_gen)
 
-test_labels
+# print('val_loss:', val_loss)
+# print('val_acc:', val_acc)
 
-predictions = model.predict(test_gen, verbose=1)
+# test_labels = test_gen.classes
 
-from sklearn.metrics import confusion_matrix
+# test_labels
 
-predictions.argmax(axis=1)
+# predictions = model.predict(test_gen, verbose=1)
 
-cm = confusion_matrix(test_labels, predictions.argmax(axis=1))
+# from sklearn.metrics import confusion_matrix
 
-test_gen.class_indices
+# predictions.argmax(axis=1)
 
-import seaborn as sns
-sns.heatmap(cm, annot=True)
+# cm = confusion_matrix(test_labels, predictions.argmax(axis=1))
+
+# test_gen.class_indices
+
+# import seaborn as sns
+# sns.heatmap(cm, annot=True)
 
