@@ -28,6 +28,11 @@ train_path = '/home/binh/covid-chestxray-dataset/base_dir/train_dir'
 valid_path = '/home/binh/covid-chestxray-dataset/base_dir/val_dir'
 test_path = '/home/binh/covid-chestxray-dataset/base_dir/test_dir'
 
+NUM_AUG_IMAGES_WANTED = 11000
+
+IMAGE_HEIGHT = 224
+IMAGE_WIDTH = 224
+
 datagen = ImageDataGenerator(rescale=1.0/255)
 
 train_gen = datagen.flow_from_directory(train_path,
