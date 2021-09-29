@@ -25,6 +25,12 @@ from pathlib import Path
 
 class_list = ['COVID', 'Normal', 'Viral_Pneumonia']
 
+
+NUM_AUG_IMAGES_WANTED = 11000
+
+IMAGE_HEIGHT = 224
+IMAGE_WIDTH = 224
+
 for item in class_list:
     aug_dir = '/home/binh/covid-chestxray-dataset/aug_dir'
     if Path(aug_dir).is_dir():
