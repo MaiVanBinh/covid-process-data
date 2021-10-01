@@ -22,6 +22,10 @@ import matplotlib.pyplot as plt
 import plotly.offline as py
 import plotly.figure_factory as ff
 import pickle
+import timeit
+
+start = timeit.default_timer()
+
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
 class_list = ['COVID', 'Normal', 'Viral_Pneumonia']
@@ -115,6 +119,10 @@ model.summary()
 model.compile(Adam(learning_rate=0.00001), loss='categorical_crossentropy', 
               metrics=['accuracy'])
               
+stop = timeit.default_timer()
+
+print('Time: ', stop - start)  
+
 filepath = "/COVID-19-VGG16.h5"
 
 history = model.fit_generator(train_gen, steps_per_epoch=180, validation_data=val_gen,epochs=100, verbose=1)
