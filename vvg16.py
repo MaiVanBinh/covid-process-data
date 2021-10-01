@@ -43,17 +43,17 @@ datagen = ImageDataGenerator(rescale=1.0/255)
 
 train_gen = datagen.flow_from_directory(train_path,
                                         target_size=(IMAGE_HEIGHT,IMAGE_WIDTH),
-                                        batch_size=10,
+                                        batch_size=30,
                                         class_mode='categorical')
 
 val_gen = datagen.flow_from_directory(valid_path,
                                         target_size=(IMAGE_HEIGHT,IMAGE_WIDTH),
-                                        batch_size=10,
+                                        batch_size=30,
                                         class_mode='categorical')
 
 test_gen = datagen.flow_from_directory(test_path,
                                         target_size=(IMAGE_HEIGHT,IMAGE_WIDTH),
-                                        batch_size=10,
+                                        batch_size=30,
                                         class_mode='categorical', shuffle=False)
 
 kernel_size = (3,3)
