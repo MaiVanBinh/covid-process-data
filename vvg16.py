@@ -21,6 +21,7 @@ import shutil
 import matplotlib.pyplot as plt
 import plotly.offline as py
 import plotly.figure_factory as ff
+import pickle
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
 class_list = ['COVID', 'Normal', 'Viral_Pneumonia']
@@ -116,11 +117,8 @@ model.compile(Adam(learning_rate=0.00001), loss='categorical_crossentropy',
               
 filepath = "/COVID-19-VGG16.h5"
 
-history = model.fit_generator(train_gen, steps_per_epoch=180, validation_data=val_gen,epochs=200, verbose=1)
+history = model.fit_generator(train_gen, steps_per_epoch=180, validation_data=val_gen,epochs=2, verbose=1)
 vgg_16 = '/home/binh/dataset/covid-process-data/VGG-16'
-if Path(vgg_16).is_dir():
-    shutil.rmtree(vgg_16) 
-os.mkdir(vgg_16)
 
 model.save_weights('/home/binh/dataset/covid-process-data/VGG-16/weights.h5')
 
