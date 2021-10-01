@@ -1,5 +1,3 @@
-
-   
 import os
 import cv2
 import imageio
@@ -23,7 +21,6 @@ import shutil
 import matplotlib.pyplot as plt
 import plotly.offline as py
 import plotly.figure_factory as ff
-from pathlib import Path
 
 class_list = ['COVID', 'Normal', 'Viral_Pneumonia']
 
