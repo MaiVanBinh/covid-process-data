@@ -21,6 +21,7 @@ import shutil
 import matplotlib.pyplot as plt
 import plotly.offline as py
 import plotly.figure_factory as ff
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
 class_list = ['COVID', 'Normal', 'Viral_Pneumonia']
 
