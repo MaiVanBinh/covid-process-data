@@ -74,8 +74,8 @@ from tensorflow.python.keras import optimizers
 sgd = optimizers.SGD(lr = 0.01, decay = 1e-6, momentum = 0.9, nesterov = True)
 model.compile(optimizer = sgd, loss = OBJECTIVE_FUNCTION, metrics = LOSS_METRICS)
 
-from keras.applications.resnet50 import preprocess_input
-from keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.applications.resnet50 import preprocess_input
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 image_size = IMAGE_RESIZE
 
