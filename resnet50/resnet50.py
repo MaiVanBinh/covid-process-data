@@ -59,7 +59,7 @@ model = Sequential()
 
 # 1st layer as the lumpsum weights from resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5
 # NOTE that this layer will be set below as NOT TRAINABLE, i.e., use it as is
-model.add(ResNet50(include_top = False, pooling = RESNET50_POOLING_AVERAGE, weights = resnet_weights_path))
+model.add(ResNet50(include_top = False, pooling = RESNET50_POOLING_AVERAGE, weights='imagenet'))
 
 # 2nd layer as Dense for 2-class classification, i.e., dog or cat using SoftMax activation
 model.add(Dense(NUM_CLASSES, activation = DENSE_LAYER_ACTIVATION))
