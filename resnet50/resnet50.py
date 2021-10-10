@@ -22,7 +22,7 @@ OBJECTIVE_FUNCTION = 'categorical_crossentropy'
 LOSS_METRICS = ['accuracy']
 
 # EARLY_STOP_PATIENCE must be < NUM_EPOCHS
-NUM_EPOCHS = 10
+NUM_EPOCHS = 100
 EARLY_STOP_PATIENCE = 3
 
 # These steps value should be proper FACTOR of no.-of-images in train & valid folders respectively
