@@ -1,105 +1,129 @@
-import os
-import cv2
-import glob
-import torch
-import shutil
-import itertools
-import torch.nn as nn
-import torch.optim as optim
-import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import numpy as np
+import pandas as pd
+
 import matplotlib.pyplot as plt
-from pathlib import Path
-from torch.nn import functional as F
-from torchvision import datasets, models, transforms
+%matplotlib inline 
+
+import cv2
+
+import os
+
+# Fixed for our Cats & Dogs classes
+NUM_CLASSES = 3
+
+# Fixed for Cats & Dogs color images
+CHANNELS = 3
+
+IMAGE_RESIZE = 224
+RESNET50_POOLING_AVERAGE = 'avg'
+DENSE_LAYER_ACTIVATION = 'softmax'
+OBJECTIVE_FUNCTION = 'categorical_crossentropy'
+
+# Common accuracy metric for all outputs, but can use different metrics for different output
+LOSS_METRICS = ['accuracy']
+
+# EARLY_STOP_PATIENCE must be < NUM_EPOCHS
+NUM_EPOCHS = 10
+EARLY_STOP_PATIENCE = 3
+
+# These steps value should be proper FACTOR of no.-of-images in train & valid folders respectively
+# Training images processed in each step would be no.-of-train-images / STEPS_PER_EPOCH_TRAINING
+STEPS_PER_EPOCH_TRAINING = 10
+STEPS_PER_EPOCH_VALIDATION = 10
+
+# These steps value should be proper FACTOR of no.-of-images in train & valid folders respectively
+# NOTE that these BATCH* are for Keras ImageDataGenerator batching to fill epoch step input
+BATCH_SIZE_TRAINING = 100
+BATCH_SIZE_VALIDATION = 100
+
+# Using 1 to easily manage mapping between test_generator & prediction for submission preparation
+BATCH_SIZE_TESTING = 1
+
+from tensorflow.python.keras.applications import ResNet50
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import Dense
+
+### 
+### Below systax is available with TensorFlow 1.11 onwards but this upgrade is not available for Kaggle kernel yet
+###
+#import tensorflow as tf
+#print(tf.__version__)
+#import tensorflow as tf
+#from tf.keras.applications import ResNet50
+#from tf.keras.models import Sequential
+
+resnet_weights_path = './resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'
+
+#Still not talking about our train/test data or any pre-processing.
+
+model = Sequential()
+
+# 1st layer as the lumpsum weights from resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5
+# NOTE that this layer will be set below as NOT TRAINABLE, i.e., use it as is
+model.add(ResNet50(include_top = False, pooling = RESNET50_POOLING_AVERAGE, weights = resnet_weights_path))
+
+# 2nd layer as Dense for 2-class classification, i.e., dog or cat using SoftMax activation
+model.add(Dense(NUM_CLASSES, activation = DENSE_LAYER_ACTIVATION))
+
+# Say not to train first layer (ResNet) model as it is already trained
+model.layers[0].trainable = False
+
+model.summary()
+
+from tensorflow.python.keras import optimizers
+
+sgd = optimizers.SGD(lr = 0.01, decay = 1e-6, momentum = 0.9, nesterov = True)
+model.compile(optimizer = sgd, loss = OBJECTIVE_FUNCTION, metrics = LOSS_METRICS)
+
+from keras.applications.resnet50 import preprocess_input
+from keras.preprocessing.image import ImageDataGenerator
+
+image_size = IMAGE_RESIZE
+
+# preprocessing_function is applied on each image but only after re-sizing & augmentation (resize => augment => pre-process)
+# Each of the keras.application.resnet* preprocess_input MOSTLY mean BATCH NORMALIZATION (applied on each batch) stabilize the inputs to nonlinear activation functions
+# Batch Normalization helps in faster convergence
+data_generator = ImageDataGenerator(preprocessing_function=preprocess_input)
+
+
 train_path = '/home/binh/covid-chestxray-dataset/base_dir/train_dir'
 valid_path = '/home/binh/covid-chestxray-dataset/base_dir/val_dir'
 test_path = '/home/binh/covid-chestxray-dataset/base_dir/test_dir'
 
-normalizer = transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.25, 0.25, 0.25])
+# flow_From_directory generates batches of augmented data (where augmentation can be color conversion, etc)
+# Both train & valid folders must have NUM_CLASSES sub-folders
+train_generator = data_generator.flow_from_directory(
+        train_path,
+        target_size=(image_size, image_size),
+        batch_size=BATCH_SIZE_TRAINING,
+        class_mode='categorical')
 
-data_transforms = {
-    'train': transforms.Compose([
-        transforms.Resize((244, 244)),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomVerticalFlip(),
-        transforms.ColorJitter(),
-        transforms.ToTensor(),
-        normalizer
-    ]),
-    
-    'validation': transforms.Compose([
-        transforms.Resize((244, 244)),
-        transforms.ToTensor(),
-        normalizer
-    ])
-}
+validation_generator = data_generator.flow_from_directory(
+        valid_path,
+        target_size=(image_size, image_size),
+        batch_size=BATCH_SIZE_VALIDATION,
+        class_mode='categorical') 
 
-data_images = {
-    'train': datasets.ImageFolder(train_path, data_transforms['train']),
-    'validation': datasets.ImageFolder(valid_path, data_transforms['validation'])
-}
+# Max number of steps that these generator will have opportunity to process their source content
+# len(train_generator) should be 'no. of available train images / BATCH_SIZE_TRAINING'
+# len(valid_generator) should be 'no. of available train images / BATCH_SIZE_VALIDATION'
+(BATCH_SIZE_TRAINING, len(train_generator), BATCH_SIZE_VALIDATION, len(validation_generator))
 
-dataloaders = {
-    'train': torch.utils.data.DataLoader(data_images['train'], batch_size=32, shuffle=True, num_workers=0),
-    'validation': torch.utils.data.DataLoader(data_images['validation'], batch_size=32,shuffle=True,num_workers=0)
-}
+# Early stopping & checkpointing the best model in ../working dir & restoring that as our model for prediction
+from tensorflow.python.keras.callbacks import EarlyStopping, ModelCheckpoint
 
-device = torch.device('cuda')
-model = models.resnet50(pretrained=True)
+cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = EARLY_STOP_PATIENCE)
+cb_checkpointer = ModelCheckpoint(filepath = './best.hdf5', monitor = 'val_loss', save_best_only = True, mode = 'auto')
 
-for param in model.parameters():
-    param.requires_grad = False
+fit_history = model.fit_generator(
+        train_generator,
+        steps_per_epoch=STEPS_PER_EPOCH_TRAINING,
+        epochs = NUM_EPOCHS,
+        validation_data=validation_generator,
+        validation_steps=STEPS_PER_EPOCH_VALIDATION,
+        callbacks=[cb_checkpointer, cb_early_stopper]
+)
 
+# model.load_weights("../working/best.hdf5")
+# print(fit_history.history.keys())
 
-model.fc = nn.Sequential(
-    nn.Linear(2048, 64),
-    nn.ReLU(inplace=True),
-    nn.Linear(64, 3)
-).to(device)
-
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.fc.parameters())
-
-def trained_model(model, criterion, optimizer, epochs):
-    for epoch in range(epochs):
-        
-        print('Epoch:', str(epoch+1) + '/' + str(epochs))
-        print('-'*10)
-        
-        for phase in ['train', 'validation']:
-            if phase == 'train':
-                model.train() #this trains the model
-            else:
-                model.eval() #this evaluates the model
-
-            running_loss, running_corrects = 0.0, 0 
-
-            for inputs, labels in dataloaders[phase]:
-                inputs = inputs.to(device) #convert inputs to cpu or cuda
-                labels = labels.to(device) #convert labels to cpu or cuda
-
-                outputs = model(inputs) #outputs is inputs being fed to the model
-                loss = criterion(outputs, labels) #outputs are fed into the model
-
-                if phase == 'train':
-                    optimizer.zero_grad() #sets gradients to zero
-                    loss.backward() #computes sum of gradients
-                    optimizer.step() #preforms an optimization step
-
-                _, preds = torch.max(outputs, 1) #max elements of outputs with output dimension of one
-                running_loss += loss.item() * inputs.size(0) #loss multiplied by the first dimension of inputs
-                running_corrects += torch.sum(preds == labels.data) #sum of all the correct predictions
-
-            epoch_loss = running_loss / len(data_images[phase]) #this is the epoch loss
-            epoch_accuracy = running_corrects.double() / len(data_images[phase]) #this is the epoch accuracy
-
-            print(phase, ' loss:', epoch_loss, 'epoch_accuracy:', epoch_accuracy)
-
-    return model
-
-model = trained_model(model, criterion, optimizer, 3)
-
-os.mkdir('/models')
-torch.save(model.state_dict(), 'models/weights.h5') #save the model's weights
-# model.load_state_dict(torch.load('models/weights.h5')) #load the model's weights
