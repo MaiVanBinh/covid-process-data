@@ -45,9 +45,8 @@ dataloaders = {
     'validation': torch.utils.data.DataLoader(data_images['validation'], batch_size=32,shuffle=True,num_workers=0)
 }
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+device = torch.device()
 model = models.resnet50(pretrained=True)
-model.cuda()
 
 for param in model.parameters():
     param.requires_grad = False
