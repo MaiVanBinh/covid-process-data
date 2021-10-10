@@ -16,6 +16,23 @@ train_path = '/home/binh/covid-chestxray-dataset/base_dir/train_dir'
 valid_path = '/home/binh/covid-chestxray-dataset/base_dir/val_dir'
 test_path = '/home/binh/covid-chestxray-dataset/base_dir/test_dir'
 
+data_transforms = {
+    'train': transforms.Compose([
+        transforms.Resize((244, 244)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomVerticalFlip(),
+        transforms.ColorJitter(),
+        transforms.ToTensor(),
+        normalizer
+    ]),
+    
+    'validation': transforms.Compose([
+        transforms.Resize((244, 244)),
+        transforms.ToTensor(),
+        normalizer
+    ])
+}
+
 data_images = {
     'train': datasets.ImageFolder(train_path, data_transforms['train']),
     'validation': datasets.ImageFolder(valid_path, data_transforms['validation'])
