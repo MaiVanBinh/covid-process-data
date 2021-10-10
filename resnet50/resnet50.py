@@ -47,6 +47,7 @@ dataloaders = {
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 model = models.resnet50(pretrained=True)
+model.cuda()
 
 for param in model.parameters():
     param.requires_grad = False
