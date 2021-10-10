@@ -16,6 +16,8 @@ train_path = '/home/binh/covid-chestxray-dataset/base_dir/train_dir'
 valid_path = '/home/binh/covid-chestxray-dataset/base_dir/val_dir'
 test_path = '/home/binh/covid-chestxray-dataset/base_dir/test_dir'
 
+normalizer = transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.25, 0.25, 0.25])
+
 data_transforms = {
     'train': transforms.Compose([
         transforms.Resize((244, 244)),
