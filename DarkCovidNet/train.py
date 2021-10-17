@@ -62,4 +62,6 @@ learn = Learner(data, model, loss_func = nn.CrossEntropyLoss(), metrics=accuracy
 
 print(learn.summary())
 
-learn.fit_one_cycle(10, max_lr=3e-3)
+learn.fit_one_cycle(1, max_lr=3e-3)
+
+learn.export(file = Path("export.pkl"))
