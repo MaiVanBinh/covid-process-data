@@ -20,7 +20,6 @@ print("Number of examples in training:", len(data.train_ds))
 print("Number of examples in validation:", len(data.valid_ds))
 
 xb,yb = data.one_batch()
-
 def conv_block(ni, nf, size=3, stride=1):
     for_pad = lambda s: s if s > 2 else 3
     return nn.Sequential(
@@ -54,14 +53,13 @@ model = nn.Sequential(
     triple_conv(128, 256),
     conv_block(256, 128, size=1),
     conv_block(128, 256),
-    conv_layer(256, 2),
+    conv_layer(256, 3),
     Flatten(),
-    nn.Linear(338, 2)
+    nn.Linear(507, 3)
 )
 
 learn = Learner(data, model, loss_func = nn.CrossEntropyLoss(), metrics=accuracy)
 
 print(learn.summary())
 
-learn.fit_one_cycle(2, max_lr=3e-3)
-
+learn.fit_one_cycle(10, max_lr=3e-3)
