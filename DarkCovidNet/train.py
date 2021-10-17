@@ -2,7 +2,7 @@ from fastai.vision import *
 import numpy as np
 import fastai
 
-path = Path('/content/gdrive/MyDrive/DS/COVIDCHESSXRAY/data/')
+path = Path('/home/binh/covid-chestxray-dataset/base_dir/')
 
 np.random.seed(41)
 data = ImageDataBunch.from_folder(path, train="train", valid ="valid",
