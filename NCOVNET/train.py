@@ -1,12 +1,12 @@
 import tensorflow as tf
-import keras
+from tensorflow import keras
 
-from keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.applications import VGG16,InceptionV3,ResNet50, MobileNetV2
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.tensorflow.keras.applications import VGG16,InceptionV3,ResNet50, MobileNetV2
 from keras.applications.vgg16 import preprocess_input
 #from keras.applications.mobilenetv2 import preprocess_input
 #from keras.applications.resnet50 import preprocess_input
-from keras.preprocessing import image
+from tensorflow.keras.preprocessing import image
 from tensorflow.keras.layers import AveragePooling2D, Dropout,Flatten, Dense, Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
