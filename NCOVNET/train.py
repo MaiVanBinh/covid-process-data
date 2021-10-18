@@ -23,8 +23,9 @@ import pandas as pd
 from PIL import Image
 import time
 
-train_path = "./gdrive/MyDrive/covid/v2/code/nCOVnet-COVID-19-detector/dataset/train"
-test_path = "./gdrive/MyDrive/covid/v2/code/nCOVnet-COVID-19-detector/dataset/test"
+train_path = '/home/binh/covid-chestxray-dataset/base_dir/train_dir'
+valid_path = '/home/binh/covid-chestxray-dataset/base_dir/val_dir'
+test_path = '/home/binh/covid-chestxray-dataset/base_dir/test_dir'
 
 train_datagen = ImageDataGenerator(rescale=1./255,
  rotation_range=20,
@@ -47,20 +48,11 @@ train_generator = train_datagen.flow_from_directory(train_path,
     shuffle=True,seed=42,class_mode="categorical",
     color_mode = 'rgb',
     batch_size = 16)
-test_generator = test_datagen.flow_from_directory(test_path,
+test_generator = test_datagen.flow_from_directory(valid_path,
     target_size = (224, 224),
     color_mode = 'rgb',
     batch_size = 1,seed=42,class_mode="categorical",
     shuffle = False)
-
-all_labels = ['COVID-19','other']
-t_x, t_y = next(train_generator)
-fig, m_axs = plt.subplots(4, 4, figsize = (16, 16))
-for (c_x, c_y, c_ax) in zip(t_x, t_y, m_axs.flatten()):
-    c_ax.imshow(c_x[:,:,0], cmap = 'bone', vmin = -1.5, vmax = 1.5)
-    c_ax.set_title(', '.join([n_class for n_class, n_score in zip(all_labels, c_y) 
-                             if n_score>0.5]))
-    c_ax.axis('off')
 
 basemodel = VGG16(weights="imagenet", include_top=False,input_tensor=Input(shape=(224, 224, 3)))
 
@@ -72,7 +64,7 @@ headModel = Dense(256, activation="relu")(headModel)
 headModel = Dropout(0.5)(headModel)
 #headModel = Dense(256, activation="relu")(headModel)
 #headModel = Dropout(0.3)(headModel)
-headModel = Dense(2, activation="softmax")(headModel)
+headModel = Dense(3, activation="softmax")(headModel)
 
 model = Model(inputs=basemodel.input, outputs=headModel)
 
