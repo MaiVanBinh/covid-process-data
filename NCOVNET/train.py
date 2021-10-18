@@ -3,7 +3,7 @@ from tensorflow import keras
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications import VGG16,InceptionV3,ResNet50, MobileNetV2
-from keras.applications.vgg16 import preprocess_input
+from tensorflow.keras.applications.vgg16 import preprocess_input
 #from keras.applications.mobilenetv2 import preprocess_input
 #from keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.preprocessing import image
